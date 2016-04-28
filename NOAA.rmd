@@ -156,7 +156,7 @@ grid.arrange(g31, g32, ncol=1)
 ##### Figure 3 conclusion: From 1950 to 2011 severe weather related fatality spiked in 1995 in the US. The state of Illinois had the most fatality compared to other states, followed by Texas. 
 
 
-### 4. In which states did severe weather events have the greatest overall economic consequences, and what are the repective dominant damaging severe weather types?
+### 4. In which states did severe weather events have the greatest overall economic consequences, and what are the respective dominant damaging severe weather types?
 
 Data processing for figure 4 (4 plots): To analyze property or crops damage for each state, data is grouped by the STATE variable and the total property damage or crops damage for each state is derived.
 

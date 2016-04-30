@@ -12,7 +12,7 @@ This project involves exploring the U.S. National Oceanic and Atmospheric Admini
 
 The following data analysis shows that tornado is the most harmful severe weather event in the US. Tornados both killed and injured more people than any other severe weather types from 1950 to 2011. Furthermore, it is found that from 1950 to 2011 severe weather related fatality spiked in 1995. The states of Illinois and Texas had the most fatality compared to other states.
 
-Analysis also shows that flood and drought caused the most damages on property and crops, respectively. California is the victim of most property damage among the states, with flood as the leading cause; Texas is the victim of most crops damage, with drought as the leading cause.
+Analysis also shows that hurricane/typhoon and drought caused the most damages on property and crops, respectively. Louisiana is the victim of most property damage among the states, with storm surge, hurricane and typhoon as the leading causes; Texas is the victim of most crops damage, with drought as the leading cause.
 
 [1]: https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2 "(NOAA) storm database"
 
@@ -45,9 +45,88 @@ data <- read.csv('../webData/NOAAStorm.csv.bz2')
 
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(lubridate))
+options(dplyr.print_max = 1e9)
 
 data$year <- year(mdy_hms(data$BGN_DATE))
 data <- data %>% select(year, STATE, EVTYPE, F, FATALITIES, INJURIES, PROPDMG, PROPDMGEXP, CROPDMG, CROPDMGEXP)
+
+## Examine major weather disasters with respect to fatality and finacial damage.
+majorFatality <- data %>% filter(FATALITIES > 100) %>% group_by(STATE) %>% select(year, STATE, EVTYPE, F, FATALITIES, INJURIES)
+
+majorPropDmg <- data %>% filter(PROPDMG > 5 & PROPDMGEXP=="B") %>% group_by(STATE) %>% select(year, STATE, EVTYPE, PROPDMG, PROPDMGEXP)
+
+majorCropDmg <- data %>% filter(CROPDMG > 1 & CROPDMGEXP=="B") %>% group_by(STATE) %>% select(year, STATE, EVTYPE, CROPDMG, CROPDMGEXP)
+
+majorFatality; majorPropDmg; majorCropDmg
+```
+
+```
+## Source: local data frame [4 x 6]
+## Groups: STATE [4]
+## 
+##    year  STATE  EVTYPE     F FATALITIES INJURIES
+##   (dbl) (fctr)  (fctr) (int)      (dbl)    (dbl)
+## 1  1953     MI TORNADO     5        116      785
+## 2  1953     TX TORNADO     5        114      597
+## 3  1995     IL    HEAT    NA        583        0
+## 4  2011     MO TORNADO     5        158     1150
+```
+
+```
+## Source: local data frame [9 x 5]
+## Groups: STATE [5]
+## 
+##    year  STATE            EVTYPE PROPDMG PROPDMGEXP
+##   (dbl) (fctr)            (fctr)   (dbl)     (fctr)
+## 1  2001     TX    TROPICAL STORM    5.15          B
+## 2  2004     FL HURRICANE/TYPHOON    5.42          B
+## 3  2005     FL HURRICANE/TYPHOON   10.00          B
+## 4  2005     LA HURRICANE/TYPHOON   16.93          B
+## 5  2005     LA       STORM SURGE   31.30          B
+## 6  2005     MS HURRICANE/TYPHOON    7.35          B
+## 7  2005     MS       STORM SURGE   11.26          B
+## 8  2005     MS HURRICANE/TYPHOON    5.88          B
+## 9  2006     CA             FLOOD  115.00          B
+```
+
+```
+## Source: local data frame [3 x 5]
+## Groups: STATE [2]
+## 
+##    year  STATE            EVTYPE CROPDMG CROPDMGEXP
+##   (dbl) (fctr)            (fctr)   (dbl)     (fctr)
+## 1  1993     IL       RIVER FLOOD    5.00          B
+## 2  1994     MS         ICE STORM    5.00          B
+## 3  2005     MS HURRICANE/TYPHOON    1.51          B
+```
+
+```r
+## 2006/CA/FLOOD/115.00/B does not correlate with historical fact
+## edit PROPDMGEXP in record 2006/CA/FLOOD/115.00/B from "B" to "M"
+data$PROPDMGEXP <- as.character(data$PROPDMGEXP)
+
+data[data$year==2006 & data$STATE=="CA" & data$PROPDMG==115.00 & data$PROPDMGEXP=="B", ]$PROPDMGEXP <- "M"
+
+data$PROPDMGEXP <- as.factor(data$PROPDMGEXP)
+
+majorPropDmg <- data %>% filter(PROPDMG > 5 & PROPDMGEXP=="B") %>% group_by(STATE) %>% select(year, STATE, EVTYPE, PROPDMG, PROPDMGEXP)
+majorPropDmg
+```
+
+```
+## Source: local data frame [8 x 5]
+## Groups: STATE [4]
+## 
+##    year  STATE            EVTYPE PROPDMG PROPDMGEXP
+##   (dbl) (fctr)            (fctr)   (dbl)     (fctr)
+## 1  2001     TX    TROPICAL STORM    5.15          B
+## 2  2004     FL HURRICANE/TYPHOON    5.42          B
+## 3  2005     FL HURRICANE/TYPHOON   10.00          B
+## 4  2005     LA HURRICANE/TYPHOON   16.93          B
+## 5  2005     LA       STORM SURGE   31.30          B
+## 6  2005     MS HURRICANE/TYPHOON    7.35          B
+## 7  2005     MS       STORM SURGE   11.26          B
+## 8  2005     MS HURRICANE/TYPHOON    5.88          B
 ```
 
 ## Results
@@ -107,12 +186,12 @@ crops$EVTYPE <- factor(as.character(crops$EVTYPE), levels=unique(crops$EVTYPE))
 g1 <- ggplot(property, aes(EVTYPE, Property))
 g1 <- g1 + geom_bar(stat='identity', alpha=0.75, fill="coral")
 g1 <- g1 + labs(x='', fill='', y='Total damage 1950-2011 (Billion Dollars)', title='Top 10 property-damaging weather')
-g1 <- g1 + theme(axis.text.x=element_text(angle = 45, vjust = 1, hjust=1))
+g1 <- g1 + theme(axis.text.x=element_text(angle = 65, vjust = 1, hjust=1))
 
 g2 <- ggplot(crops, aes(EVTYPE, Crops))
 g2 <- g2 + geom_bar(stat='identity', alpha=0.75, fill="yellowgreen")
 g2 <- g2 + labs(x='', fill='', y='', title='Top 10 crops-damaging weather')
-g2 <- g2 + theme(axis.text.x=element_text(angle = 45, vjust = 1, hjust=1))
+g2 <- g2 + theme(axis.text.x=element_text(angle = 65, vjust = 1, hjust=1))
 
 grid.arrange(g1, g2, ncol=2)
 ```
@@ -165,9 +244,9 @@ Data processing for figure 4 (4 plots): To analyze property or crops damage for 
 
 propertyState <- damage %>% group_by(STATE) %>% summarize(Property=sum(propDmgSum)) %>% arrange(STATE)
 
-CAProperty <- damage %>% filter(STATE=='CA') %>% group_by(EVTYPE) %>% summarize(Property=sum(propDmgSum)) %>% arrange(desc(Property)) %>% top_n(10, Property)
+LAProperty <- damage %>% filter(STATE=='LA') %>% group_by(EVTYPE) %>% summarize(Property=sum(propDmgSum)) %>% arrange(desc(Property)) %>% top_n(10, Property)
 
-CAProperty$EVTYPE <- factor(as.character(CAProperty$EVTYPE), levels=unique(CAProperty$EVTYPE))
+LAProperty$EVTYPE <- factor(as.character(LAProperty$EVTYPE), levels=unique(LAProperty$EVTYPE))
 
 cropsState <- damage %>% group_by(STATE) %>% summarize(Crops=sum(cropsDmgSum)) %>% arrange(STATE)
 
@@ -182,9 +261,9 @@ g41 <- g41 + geom_bar(stat='identity', alpha=0.75, fill="steelblue")
 g41 <- g41 + labs(x='', fill='', y='Damage (B$)', title='Total severe weather related property damage by state 1950-2011')
 g41 <- g41 + theme(axis.text.x=element_text(angle = 90, vjust=0.6))
 
-g42 <- ggplot(CAProperty, aes(EVTYPE, Property))
+g42 <- ggplot(LAProperty, aes(EVTYPE, Property))
 g42 <- g42 + geom_bar(stat='identity', alpha=0.75, fill="steelblue")
-g42 <- g42 + labs(x='', fill='', y='Damage (B$)', title='Top 10 property-damaging weather in CA 1950-2011')
+g42 <- g42 + labs(x='', fill='', y='Damage (B$)', title='Top 10 property-damaging weather in Louisiana 1950-2011')
 g42 <- g42 + theme(axis.text.x=element_text(angle = 45, vjust = 1, hjust=1))
 
 grid.arrange(g41, g42, ncol=1)
@@ -208,7 +287,7 @@ grid.arrange(g43, g44, ncol=1)
 
 ![](NOAA_files/figure-html/property crops damage state EVTYPE-2.png)
 
-##### Figure 4 conclusion: From 1950 to 2011, California suffered the most property damage, at 124 Billion dollars, with flood causing the most damage; while Texas suffered the most crops damage, at 7.3 Billion dollars, with drought causing the most damage.
+##### Figure 4 conclusion: From 1950 to 2011, Louisiana suffered the most property damage, with 32 Billion dollars from storm surge and 21 Billion dollars from hurricane and typhoon; while Texas suffered the most crops damage, at 7.3 Billion dollars, with drought causing the most damage.
 
 
 ## Discussions
@@ -217,7 +296,7 @@ Local, state, and federal governments should improve counter-measures to reduce 
 
 Illinois is shown to be the state, and 1995 is shown to be the year with the most weather related fatality. These 2 results correlate well with one recorded major severe weather event in the US: the 1995 heat wave in Chicago, Illinois that killed hundreds of people.
 
-California should strive to reduce flood-related property damage; while Texas should strive to reduce drought-related crops damage.
+Louisiana should strive to reduce storm, hurricane, and typhoon related property damage; while Texas should strive to reduce drought-related crops damage.
 
 
 

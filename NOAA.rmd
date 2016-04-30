@@ -188,6 +188,8 @@ propertyState <- damage %>% group_by(STATE) %>% summarize(Property=sum(propDmgSu
 
 LAProperty <- damage %>% filter(STATE=='LA') %>% group_by(EVTYPE) %>% summarize(Property=sum(propDmgSum)) %>% arrange(desc(Property)) %>% top_n(10, Property)
 
+LAProperty[LAProperty$EVTYPE=="HEAVY RAIN/SEVERE WEATHER", ]$EVTYPE <- "HEAVY RAIN"
+
 LAProperty$EVTYPE <- factor(as.character(LAProperty$EVTYPE), levels=unique(LAProperty$EVTYPE))
 
 cropsState <- damage %>% group_by(STATE) %>% summarize(Crops=sum(cropsDmgSum)) %>% arrange(STATE)

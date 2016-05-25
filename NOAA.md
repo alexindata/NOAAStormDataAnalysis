@@ -100,8 +100,12 @@ majorFatality; majorPropDmg; majorCropDmg
 ## 3  2005     MS HURRICANE/TYPHOON    1.51          B
 ```
 
+The entry of 2006/CA/FLOOD/115.00/B property damage does not correlate with historical fact. If left unchanged, this entry will significantly impact conclusions from the exploratory analysis. The entered damage unit "B" is therefore corrected to "M" after referencing [relevant USGS publication] [3].
+
+[3]: https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=0ahUKEwjOn8zK1fHMAhXh6YMKHUkzAJUQFggdMAA&url=https%3A%2F%2Fpubs.usgs.gov%2Fof%2F2006%2F1182%2Fpdf%2Fofr2006-1182.pdf&usg=AFQjCNGVB78zFbDgpfoJ_jBYmFmqiS09pQ "relevant USGS publication"
+
+
 ```r
-## 2006/CA/FLOOD/115.00/B does not correlate with historical fact
 ## edit PROPDMGEXP in record 2006/CA/FLOOD/115.00/B from "B" to "M"
 data$PROPDMGEXP <- as.character(data$PROPDMGEXP)
 
@@ -157,7 +161,7 @@ g <- g + theme(axis.text.x=element_text(angle = 45, vjust = 1, hjust=1))
 print(g)
 ```
 
-![](NOAA_files/figure-html/overall fatality injury-1.png)
+![](NOAA_files/figure-html/overall fatality injury-1.png)<!-- -->
 
 ##### Figure 1 conclusion: Tornados killed and injured the most people in the US from 1950 to 2011.
 
@@ -196,7 +200,7 @@ g2 <- g2 + theme(axis.text.x=element_text(angle = 65, vjust = 1, hjust=1))
 grid.arrange(g1, g2, ncol=2)
 ```
 
-![](NOAA_files/figure-html/property crops damage-1.png)
+![](NOAA_files/figure-html/property crops damage-1.png)<!-- -->
 
 ##### Figure 2 conclusion: Hurricane/typhoon caused the most property damage, while drought caused the most crops damage in the US from 1950 to 2011.
 
@@ -229,7 +233,7 @@ g32 <- g32 + theme(axis.text.x=element_text(angle = 90, vjust=0.6))
 grid.arrange(g31, g32, ncol=1)
 ```
 
-![](NOAA_files/figure-html/fatality year state-1.png)
+![](NOAA_files/figure-html/fatality year state-1.png)<!-- -->
 
 ##### Figure 3 conclusion: From 1950 to 2011 severe weather related fatality spiked in 1995 in the US. The state of Illinois had the most fatality compared to other states, followed by Texas. 
 
@@ -271,7 +275,7 @@ g42 <- g42 + theme(axis.text.x=element_text(angle = 45, vjust = 1, hjust=1))
 grid.arrange(g41, g42, ncol=1)
 ```
 
-![](NOAA_files/figure-html/property crops damage state EVTYPE-1.png)
+![](NOAA_files/figure-html/property crops damage state EVTYPE-1.png)<!-- -->
 
 ```r
 g43 <- ggplot(filter(cropsState, STATE != 'XX'), aes(STATE, Crops))
@@ -287,7 +291,7 @@ g44 <- g44 + theme(axis.text.x=element_text(angle = 45, vjust = 1, hjust=1))
 grid.arrange(g43, g44, ncol=1)
 ```
 
-![](NOAA_files/figure-html/property crops damage state EVTYPE-2.png)
+![](NOAA_files/figure-html/property crops damage state EVTYPE-2.png)<!-- -->
 
 ##### Figure 4 conclusion: From 1950 to 2011, Louisiana suffered the most property damage, with 32 Billion dollars from storm surge and 21 Billion dollars from hurricane/typhoon; while Texas suffered the most crops damage, at 7.3 Billion dollars, with drought causing the most damage.
 

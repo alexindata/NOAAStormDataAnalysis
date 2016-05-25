@@ -64,8 +64,13 @@ majorPropDmg <- data %>% filter(PROPDMG > 5 & PROPDMGEXP=="B") %>% group_by(STAT
 majorCropDmg <- data %>% filter(CROPDMG > 1 & CROPDMGEXP=="B") %>% group_by(STATE) %>% select(year, STATE, EVTYPE, CROPDMG, CROPDMGEXP)
 
 majorFatality; majorPropDmg; majorCropDmg
+```
 
-## 2006/CA/FLOOD/115.00/B does not correlate with historical fact
+The entry of 2006/CA/FLOOD/115.00/B property damage does not correlate with historical fact. If left unchanged, this entry will significantly impact conclusions from the exploratory analysis. The entered damage unit "B" is therefore corrected to "M" after referencing [relevant USGS publication] [3].
+
+[3]: https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=0ahUKEwjOn8zK1fHMAhXh6YMKHUkzAJUQFggdMAA&url=https%3A%2F%2Fpubs.usgs.gov%2Fof%2F2006%2F1182%2Fpdf%2Fofr2006-1182.pdf&usg=AFQjCNGVB78zFbDgpfoJ_jBYmFmqiS09pQ "relevant USGS publication"
+
+```{r correct entry error}
 ## edit PROPDMGEXP in record 2006/CA/FLOOD/115.00/B from "B" to "M"
 data$PROPDMGEXP <- as.character(data$PROPDMGEXP)
 
@@ -75,7 +80,6 @@ data$PROPDMGEXP <- as.factor(data$PROPDMGEXP)
 
 majorPropDmg <- data %>% filter(PROPDMG > 5 & PROPDMGEXP=="B") %>% group_by(STATE) %>% select(year, STATE, EVTYPE, PROPDMG, PROPDMGEXP)
 majorPropDmg
-
 ```
 
 ## Results
@@ -177,7 +181,7 @@ grid.arrange(g31, g32, ncol=1)
 ##### Figure 3 conclusion: From 1950 to 2011 severe weather related fatality spiked in 1995 in the US. The state of Illinois had the most fatality compared to other states, followed by Texas. 
 
 
-### 4. In which states did severe weather events have the greatest overall economic consequences, and what are the respective dominant damaging severe weather types?
+### 4. In which states did severe weather events have the greatest overall economic consequences, and what are the most damaging severe weather types?
 
 Data processing for figure 4 (4 plots): To analyze property or crops damage for each state, data is grouped by the STATE variable and the total property damage or crops damage for each state is derived.
 
